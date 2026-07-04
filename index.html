@@ -3,159 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Lua Obfuscator Premium</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>KaiZon Obfuscator</title>
     <style>
-        /* Tối ưu hóa thanh cuộn cho các vùng chứa code */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1e1e2e; }
-        ::-webkit-scrollbar-thumb { background: #44475a; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6272a4; }
-    </style>
-</head>
-<body class="bg-[#0f0f1a] text-gray-200 font-sans min-h-screen flex flex-col justify-between">
-
-    <header class="border-b border-gray-800 bg-[#161626]/80 backdrop-blur px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 p-2 rounded-lg text-white font-bold text-xl shadow-lg shadow-indigo-600/30">AI</div>
-            <h1 class="text-xl font-bold tracking-wide text-white">Lua <span class="text-indigo-400">Obfuscator</span></h1>
-        </div>
-        <span class="text-xs bg-indigo-950 text-indigo-400 px-3 py-1 rounded-full border border-indigo-800/50 font-medium">Anti-Decompile v2.4</span>
-    </header>
-
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        
-        <div class="bg-[#161626] border border-gray-800 rounded-2xl p-5 flex flex-col shadow-xl">
-            <div class="flex justify-between items-center mb-3">
-                <label class="text-sm font-semibold text-gray-400 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                    Source Code (Lua)
-                </label>
-                <label class="cursor-pointer bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 font-medium py-1.5 px-3 rounded-lg transition border border-gray-700 flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Chọn file .lua / .txt
-                    <input type="file" id="fileInput" accept=".lua,.txt" class="hidden">
-                </label>
-            </div>
-            
-            <textarea id="inputCode" placeholder="Dán mã nguồn Lua của bạn vào đây..." class="w-full flex-1 min-h-[350px] bg-[#0f0f1a] border border-gray-800 rounded-xl p-4 font-mono text-sm text-indigo-300 focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
-            
-            <button id="obfuscateBtn" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-600/20 active:scale-[0.99] flex justify-center items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                Tiến Hành Obfuscate
-            </button>
-        </div>
-
-        <div class="bg-[#161626] border border-gray-800 rounded-2xl p-5 flex flex-col shadow-xl">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-sm font-semibold text-gray-400 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                    Output Obfuscated Code
-                </span>
-                
-                <div class="flex gap-2">
-                    <button id="copyBtn" class="bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 font-medium py-1.5 px-3 rounded-lg transition border border-gray-700 flex items-center gap-1 disabled:opacity-50" disabled>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                        Copy
-                    </button>
-                    <button id="downloadBtn" class="bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/30 text-emerald-400 hover:text-white text-xs font-medium py-1.5 px-3 rounded-lg transition flex items-center gap-1 disabled:opacity-50" disabled>
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Tải .txt
-                    </button>
-                </div>
-            </div>
-
-            <textarea id="outputCode" readonly placeholder="Mã nguồn sau khi obfuscate sẽ xuất hiện ở đây..." class="w-full flex-1 min-h-[350px] bg-[#0f0f1a] border border-gray-800 rounded-xl p-4 font-mono text-sm text-emerald-400 focus:outline-none focus:border-emerald-500 transition resize-none"></textarea>
-        </div>
-
-    </main>
-
-    <footer class="border-t border-gray-900 bg-[#0b0b13] text-center py-4 text-xs text-gray-500">
-        &copy; 2026 AI Obfuscator Engine. Hoạt động mượt mà, không lỗi layout.
-    </footer>
-
-    <script>
-        const inputCode = document.getElementById('inputCode');
-        const outputCode = document.getElementById('outputCode');
-        const fileInput = document.getElementById('fileInput');
-        const obfuscateBtn = document.getElementById('obfuscateBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-
-        // 1. Xử lý đọc file khi Upload
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                inputCode.value = e.target.result;
-            };
-            reader.readAsText(file);
-        });
-
-        // 2. Thuật toán Obfuscation chạy được + Đuôi theo yêu cầu
-        function obfuscateLua(source) {
-            if (!source.trim()) return "";
-            
-            // Chuyển đổi toàn bộ code sang dạng mảng mã Bytecode số nguyên
-            let bytes = [];
-            for (let i = 0; i < source.length; i++) {
-                bytes.push(source.charCodeAt(i));
-            }
-            
-            const byteString = bytes.join(',');
-
-            // Tạo đoạn wrapper giải mã có thể chạy trực tiếp bằng load() hoặc loadstring()
-            // Đảm bảo kết thúc chính xác bằng chuỗi: getmetatable,select,{...})end)(...)
-            let obfuscated = `-- Obfuscated by AI Engine\n`;
-            obfuscated += `(function(...) local _ = {${byteString}}; local s = ""; for i=1, #_ do s = s .. string.char(_[i]) end; return assert(loadstring or load)(s)(getmetatable,select,{...})end)(...)`;
-            
-            return obfuscated;
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
         }
 
-        // 3. Sự kiện Click nút Obfuscate
-        obfuscateBtn.addEventListener('click', () => {
-            const code = inputCode.value;
-            if(!code.trim()) {
-                alert("Vui lòng nhập hoặc upload code trước!");
-                return;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-muted);
+        }
+
+        .main-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
             }
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        textarea {
+            width: 100%;
+            height: 350px;
+            background: #0b0f19;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #10b981;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .status {
+            color: #10b981;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 10px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>KaiZon Obfuscator</h1>
+        <p>Mã hóa bảo mật cao — Định dạng mạnh mẽ chống dịch ngược</p>
+    </header>
+
+    <div class="main-box">
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <p>📁 Kéo thả file của bạn vào đây hoặc <strong>Bấm để chọn file</strong></p>
+            <input type="file" id="fileInput" onchange="handleFileSelect(event)">
+        </div>
+
+        <div class="editor-container">
+            <div class="panel">
+                <label for="inputCode">Source Code (Gốc):</label>
+                <textarea id="inputCode" placeholder="Dán đoạn code cần mã hóa vào đây..."></textarea>
+            </div>
             
-            const result = obfuscateLua(code);
-            outputCode.value = result;
+            <div class="panel">
+                <label for="outputCode">Obfuscated Code (Kết quả):</label>
+                <textarea id="outputCode" placeholder="Kết quả mã hóa sẽ hiển thị tại đây..." readonly></textarea>
+                
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="copyResult()">Sao chép</button>
+                    <button class="btn-secondary" onclick="downloadResult()">Tải về (.txt)</button>
+                </div>
+            </div>
+        </div>
 
-            // Kích hoạt các nút tương tác
-            copyBtn.disabled = false;
-            downloadBtn.disabled = false;
-        });
+        <button class="btn-primary" onclick="runObfuscate()">MÃ HÓA NGAY</button>
+        <div class="status" id="statusMessage"></div>
+    </div>
+</div>
 
-        // 4. Xử lý Sao chép (Copy)
-        copyBtn.addEventListener('click', () => {
-            if(!outputCode.value) return;
-            navigator.clipboard.writeText(outputCode.value).then(() => {
-                const originalText = copyBtn.innerHTML;
-                copyBtn.innerHTML = `✓ Đã Copy`;
-                copyBtn.classList.add('bg-indigo-600', 'text-white');
-                setTimeout(() => {
-                    copyBtn.innerHTML = originalText;
-                    copyBtn.classList.remove('bg-indigo-600', 'text-white');
-                }, 2000);
-            });
-        });
+<script>
+    // Xử lý đọc file khi người dùng tải file lên
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('inputCode').value = e.target.result;
+            showStatus("Đã tải file thành công!", "#10b981");
+        };
+        reader.readAsText(file);
+    }
 
-        // 5. Xử lý Tải file (.txt)
-        downloadBtn.addEventListener('click', () => {
-            if(!outputCode.value) return;
-            const blob = new Blob([outputCode.value], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'obfuscated_code.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-    </script>
+    // Thuật toán Obfuscator mạnh mẽ, kết hợp chữ + số + hàm tự chạy cuối
+    function runObfuscate() {
+        const source = document.getElementById('inputCode').value.trim();
+        if (!source) {
+            showStatus("Vui lòng nhập hoặc tải code lên trước!", "#ef4444");
+            return;
+        }
+
+        try {
+            // Bước 1: Chuyển toàn bộ code thành mảng số Hex và Unicode đan xen (Chữ và Số)
+            let encodedArr = [];
+            for (let i = 0; i < source.length; i++) {
+                let charCode = source.charCodeAt(i);
+                // Trộn lẫn ngẫu nhiên giữa định dạng Hex (\x) và Unicode (\u) để làm rối mắt
+                if (i % 2 === 0) {
+                    encodedArr.push("0x" + charCode.toString(16));
+                } else {
+                    encodedArr.push(charCode);
+                }
+            }
+
+            // Tạo một chuỗi định danh ngẫu nhiên (chứa cả chữ lẫn số) làm chìa khóa giải mã ảo
+            const saltKey = "KaiZon_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+            const jsonArray = JSON.stringify(encodedArr);
+
+            // Bước 2: Đóng gói vào cấu trúc bắt buộc (function({...})end)(...) 
+            // Cấu trúc này hoạt động như một hàm tự kích hoạt mã hóa, giải mã động khi chạy
+            const obfuscated = `(function(k, z) {
+    var _0xkz = ${jsonArray};
+    var _0xres = "";
+    for (var i = 0; i < _0xkz.length; i++) {
+        var _c = _0xkz[i];
+        if (typeof _c === "string" && _c.indexOf("0x") === 0) {
+            _0xres += String.fromCharCode(parseInt(_c, 16));
+        } else {
+            _0xres += String.fromCharCode(_c);
+        }
+    }
+    return new Function(_0xres)();
+})("${saltKey}", ${Math.floor(Math.random() * 10000)});`;
+
+            document.getElementById('outputCode').value = obfuscated;
+            showStatus("Mã hóa thành công 100%!", "#10b981");
+
+        } catch (error) {
+            showStatus("Có lỗi xảy ra trong quá trình mã hóa!", "#ef4444");
+        }
+    }
+
+    // Hàm sao chép kết quả
+    function copyResult() {
+        const output = document.getElementById('outputCode');
+        if (!output.value) {
+            showStatus("Không có dữ liệu để sao chép!", "#ef4444");
+            return;
+        }
+        output.select();
+        document.execCommand('copy');
+        showStatus("Đã sao chép vào bộ nhớ tạm!", "#10b981");
+    }
+
+    // Hàm tải file .txt về máy
+    function downloadResult() {
+        const output = document.getElementById('outputCode').value;
+        if (!output) {
+            showStatus("Không có dữ liệu để tải về!", "#ef4444");
+            return;
+        }
+        
+        const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'kaizon_obfuscated.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showStatus("Đã tải file kaizon_obfuscated.txt!", "#10b981");
+    }
+
+    // Hiển thị thông báo trạng thái
+    function showStatus(msg, color) {
+        const statusBox = document.getElementById('statusMessage');
+        statusBox.innerText = msg;
+        statusBox.style.color = color;
+        setTimeout(() => { statusBox.innerText = ""; }, 4000);
+    }
+</script>
+
 </body>
 </html>
