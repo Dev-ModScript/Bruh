@@ -103,14 +103,14 @@
 
         textarea {
             width: 100%;
-            height: 350px;
+            height: 380px;
             background: #0b0f19;
             border: 1px solid var(--border);
             border-radius: 8px;
             color: #10b981;
             padding: 15px;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 14px;
+            font-size: 13px;
             resize: none;
             outline: none;
         }
@@ -170,24 +170,24 @@
 <div class="container">
     <header>
         <h1>KaiZon Obfuscator</h1>
-        <p>Mã hóa bảo mật cao — Định dạng mạnh mẽ chống dịch ngược</p>
+        <p>Hệ thống mã hóa mã nguồn bảo mật cao dành cho Lua</p>
     </header>
 
     <div class="main-box">
         <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-            <p>📁 Kéo thả file của bạn vào đây hoặc <strong>Bấm để chọn file</strong></p>
+            <p>📁 Kéo thả file Lua/Txt vào đây hoặc <strong>Bấm để tải file lên</strong></p>
             <input type="file" id="fileInput" onchange="handleFileSelect(event)">
         </div>
 
         <div class="editor-container">
             <div class="panel">
                 <label for="inputCode">Source Code (Gốc):</label>
-                <textarea id="inputCode" placeholder="Dán đoạn code cần mã hóa vào đây..."></textarea>
+                <textarea id="inputCode" placeholder="Dán đoạn code Lua của bạn vào đây..."></textarea>
             </div>
             
             <div class="panel">
-                <label for="outputCode">Obfuscated Code (Kết quả):</label>
-                <textarea id="outputCode" placeholder="Kết quả mã hóa sẽ hiển thị tại đây..." readonly></textarea>
+                <label for="outputCode">Obfuscated Code (Đã mã hóa):</label>
+                <textarea id="outputCode" placeholder="Kết quả mã hóa dạng (function() ... end)(...) sẽ hiển thị ở đây..." readonly></textarea>
                 
                 <div class="btn-group">
                     <button class="btn-secondary" onclick="copyResult()">Sao chép</button>
@@ -196,17 +196,15 @@
             </div>
         </div>
 
-        <button class="btn-primary" onclick="runObfuscate()">MÃ HÓA NGAY</button>
+        <button class="btn-primary" onclick="runLuaObfuscate()">MÃ HÓA NGAY</button>
         <div class="status" id="statusMessage"></div>
     </div>
 </div>
 
 <script>
-    // Xử lý đọc file khi người dùng tải file lên
     function handleFileSelect(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('inputCode').value = e.target.result;
@@ -215,8 +213,8 @@
         reader.readAsText(file);
     }
 
-    // Thuật toán Obfuscator mạnh mẽ, kết hợp chữ + số + hàm tự chạy cuối
-    function runObfuscate() {
+    // Thuật toán obfuscate sinh chuỗi Bytecode ảo hóa độc quyền cho Lua
+    function runLuaObfuscate() {
         const source = document.getElementById('inputCode').value.trim();
         if (!source) {
             showStatus("Vui lòng nhập hoặc tải code lên trước!", "#ef4444");
@@ -224,47 +222,44 @@
         }
 
         try {
-            // Bước 1: Chuyển toàn bộ code thành mảng số Hex và Unicode đan xen (Chữ và Số)
-            let encodedArr = [];
+            // Tạo chuỗi Hex ngẫu nhiên (chữ và số đan xen) làm khóa muối giả lập để gây rối mắt
+            const randUUID = Math.floor(Math.random() * 9000 + 1000) + "-" + Math.random().toString(36).substring(2, 6) + "-" + Math.floor(Math.random() * 9000 + 1000);
+            
+            // Tiến hành chuyển đổi từng ký tự của code thành mã Byte (Số) và nối chuỗi bằng toán tử Lua
+            let byteCodeContainer = [];
             for (let i = 0; i < source.length; i++) {
-                let charCode = source.charCodeAt(i);
-                // Trộn lẫn ngẫu nhiên giữa định dạng Hex (\x) và Unicode (\u) để làm rối mắt
-                if (i % 2 === 0) {
-                    encodedArr.push("0x" + charCode.toString(16));
-                } else {
-                    encodedArr.push(charCode);
-                }
+                byteCodeContainer.push(source.charCodeAt(i));
             }
 
-            // Tạo một chuỗi định danh ngẫu nhiên (chứa cả chữ lẫn số) làm chìa khóa giải mã ảo
-            const saltKey = "KaiZon_" + Math.random().toString(36).substring(2, 8).toUpperCase();
-            const jsonArray = JSON.stringify(encodedArr);
+            // Chia nhỏ mảng số để nén vào định dạng chuỗi đặc biệt trong Lua [==[...]==]
+            let encodedString = "";
+            byteCodeContainer.forEach((byte, index) => {
+                // Tạo ký tự làm rối (kết hợp cả ký tự chữ và số Hex động)
+                if (index % 3 === 0) {
+                    encodedString += "\\" + byte;
+                } else if (index % 3 === 1) {
+                    encodedString += "\\x" + byte.toString(16).toUpperCase();
+                } else {
+                    encodedString += "\\" + String(byte);
+                }
+            });
 
-            // Bước 2: Đóng gói vào cấu trúc bắt buộc (function({...})end)(...) 
-            // Cấu trúc này hoạt động như một hàm tự kích hoạt mã hóa, giải mã động khi chạy
-            const obfuscated = `(function(k, z) {
-    var _0xkz = ${jsonArray};
-    var _0xres = "";
-    for (var i = 0; i < _0xkz.length; i++) {
-        var _c = _0xkz[i];
-        if (typeof _c === "string" && _c.indexOf("0x") === 0) {
-            _0xres += String.fromCharCode(parseInt(_c, 16));
-        } else {
-            _0xres += String.fromCharCode(_c);
-        }
-    }
-    return new Function(_0xres)();
-})("${saltKey}", ${Math.floor(Math.random() * 10000)});`;
+            // Tiêu đề bảo mật giống mẫu của bạn
+            const creditHeader = `--[[\n This file was Protected by KaiZon Obfuscator.\n Version: 1.0\n UUID: ${randUUID}\n]]--\n`;
 
-            document.getElementById('outputCode').value = obfuscated;
+            // Khởi tạo cấu trúc giải mã chạy động bằng hàm load() của Lua
+            // Đảm bảo phần đuôi kết thúc đúng cấu trúc tự kích hoạt: end, function(C,...) return C(...) end)
+            const luaWrapper = `return(function(...)local _KaiZon = "${encodedString}";return load(_KaiZon, "KaiZon")(...) \nend,function(C,...)return C(...)end)(...)`;
+
+            // Kết hợp tiêu đề và thân code hoàn chỉnh
+            document.getElementById('outputCode').value = creditHeader + luaWrapper;
             showStatus("Mã hóa thành công 100%!", "#10b981");
 
         } catch (error) {
-            showStatus("Có lỗi xảy ra trong quá trình mã hóa!", "#ef4444");
+            showStatus("Có lỗi xảy ra khi xử lý thuật toán mã hóa!", "#ef4444");
         }
     }
 
-    // Hàm sao chép kết quả
     function copyResult() {
         const output = document.getElementById('outputCode');
         if (!output.value) {
@@ -276,27 +271,24 @@
         showStatus("Đã sao chép vào bộ nhớ tạm!", "#10b981");
     }
 
-    // Hàm tải file .txt về máy
     function downloadResult() {
         const output = document.getElementById('outputCode').value;
         if (!output) {
             showStatus("Không có dữ liệu để tải về!", "#ef4444");
             return;
         }
-        
         const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'kaizon_obfuscated.txt';
+        a.download = 'kaizon_protected.txt';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showStatus("Đã tải file kaizon_obfuscated.txt!", "#10b981");
+        showStatus("Đã tải file thành công!", "#10b981");
     }
 
-    // Hiển thị thông báo trạng thái
     function showStatus(msg, color) {
         const statusBox = document.getElementById('statusMessage');
         statusBox.innerText = msg;
